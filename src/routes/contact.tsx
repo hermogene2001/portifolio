@@ -9,6 +9,7 @@ import {
   XIcon,
 } from "@/components/icons"
 import { PageHero } from "@/components/page-hero"
+import { friendlyError } from "@/lib/errors"
 import { useReveal } from "@/lib/use-reveal"
 import { getProfile, sendContactMessage } from "@/server/api"
 
@@ -58,11 +59,7 @@ function ContactPage() {
       setStatus("sent")
     } catch (submitError) {
       setStatus("error")
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Something went wrong. Please try again."
-      )
+      setError(friendlyError(submitError))
     }
   }
 

@@ -26,6 +26,14 @@ function createDb() {
   const pool = new Pool({
     connectionString,
     max: 5,
+    // Fail fast instead of hanging a serverless invocation when the database
+    // is unreachable or slow to accept a connection. Without these, a stuck
+    // connection can outlive the platform's function limit and the request is
+    // killed, which the client sees as an opaque (header-less) 502.
+    connectionTimeoutMillis: 10_000,
+    idleTimeoutMillis: 30_000,
+    query_timeout: 30_000,
+    keepAlive: true,
     ssl: needsSsl(connectionString) ? { rejectUnauthorized: false } : undefined,
   })
 

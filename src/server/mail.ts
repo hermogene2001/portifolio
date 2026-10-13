@@ -45,9 +45,37 @@ function getTransporter(): Transporter {
     cachedTransporter = nodemailer.createTransport({
       service: "gmail",
       auth: { user, pass },
+      // Nodemailer defaults to a 2-minute connection timeout, which can outlive
+      // a serverless function's limit: the platform then kills the request and
+      // the client sees an opaque (header-less) 502 instead of an error. Keep
+      // every SMTP step short so we fail fast and return a real message.
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 15_000,
     })
   }
   return cachedTransporter
+}
+
+/** Reject a promise if it does not settle within `ms`. */
+function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  message: string
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), ms)
+    promise.then(
+      (value) => {
+        clearTimeout(timer)
+        resolve(value)
+      },
+      (error) => {
+        clearTimeout(timer)
+        reject(error)
+      }
+    )
+  })
 }
 
 export type ContactMessage = {
@@ -97,12 +125,16 @@ export async function sendContactEmail(msg: ContactMessage) {
     </div>
   `
 
-  await transporter.sendMail({
-    from: `"Portfolio Contact" <${user}>`,
-    to,
-    replyTo: `"${name}" <${email}>`,
-    subject,
-    text,
-    html,
-  })
+  await withTimeout(
+    transporter.sendMail({
+      from: `"Portfolio Contact" <${user}>`,
+      to,
+      replyTo: `"${name}" <${email}>`,
+      subject,
+      text,
+      html,
+    }),
+    20_000,
+    "Sending your message timed out. Please try again in a moment."
+  )
 }

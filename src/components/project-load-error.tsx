@@ -1,6 +1,7 @@
+import { friendlyError } from "@/lib/errors"
+
 export function ProjectLoadError({ error }: { error: unknown }) {
-  const message =
-    error instanceof Error ? error.message : "An unexpected error occurred."
+  const message = friendlyError(error, "An unexpected error occurred.")
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-12">

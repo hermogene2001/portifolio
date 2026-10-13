@@ -10,6 +10,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 import appCss from "../styles.css?url"
 import { SiteLayout } from "@/components/site-layout"
 import { buttonVariants } from "@/components/ui/button"
+import { friendlyError } from "@/lib/errors"
 import { getProfile } from "@/server/api"
 
 export const Route = createRootRoute({
@@ -71,6 +72,21 @@ export const Route = createRootRoute({
     }
   },
   component: RootComponent,
+  errorComponent: ({ error, reset }) => (
+    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-4 py-24 text-center">
+      <p className="text-5xl font-bold">Oops</p>
+      <p className="text-muted-foreground mt-3" role="alert">
+        {friendlyError(error)}
+      </p>
+      <button
+        type="button"
+        onClick={() => reset()}
+        className={`${buttonVariants({ variant: "outline" })} mt-6`}
+      >
+        Try again
+      </button>
+    </main>
+  ),
   notFoundComponent: () => (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-4 py-24 text-center">
       <p className="text-5xl font-bold">404</p>

@@ -32,6 +32,7 @@ import {
   adminSaveSkill,
   adminSaveTestimonial,
 } from "@/server/api"
+import { friendlyError } from "@/lib/errors"
 import { SERVICE_ICON_OPTIONS } from "@/lib/service-icons"
 
 export const Route = createFileRoute("/admin")({ component: AdminPage })
@@ -89,7 +90,7 @@ function AdminPage() {
   useEffect(() => {
     if (!token) return
     reload(token).catch((err: unknown) => {
-      setError(err instanceof Error ? err.message : "Failed to load data")
+      setError(friendlyError(err, "Failed to load data"))
       setToken(null)
       localStorage.removeItem(TOKEN_KEY)
     })
@@ -103,7 +104,7 @@ function AdminPage() {
       if (token) await reload(token)
       setStatus(message)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong")
+      setError(friendlyError(err, "Something went wrong"))
     }
   }
 
@@ -134,9 +135,7 @@ function AdminPage() {
                   localStorage.setItem(TOKEN_KEY, result.token)
                   setToken(result.token)
                 } catch (err) {
-                  setError(
-                    err instanceof Error ? err.message : "Sign in failed"
-                  )
+                  setError(friendlyError(err, "Sign in failed"))
                 }
               }}
             >
