@@ -67,13 +67,14 @@ export const getPostBySlug = createServerFn({ method: "GET" })
 
 export const getHomeData = createServerFn({ method: "GET" }).handler(
   async () => {
-    const [profile, projects, posts, resume] = await Promise.all([
+    const [profile, projects, posts, skills, experience] = await Promise.all([
       readProfile(),
       readProjects(),
       readPosts(),
       readSkills(),
+      readExperience(),
     ])
-    return { profile, projects, posts, skills: resume }
+    return { profile, projects, posts, skills, experience }
   }
 )
 
