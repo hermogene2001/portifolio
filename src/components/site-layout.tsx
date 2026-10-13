@@ -83,7 +83,6 @@ export function SiteLayout({ profile }: { profile: ProfileView | null }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const name = profile?.name ?? "Hermogene UKUNDAYEZU"
-  const shortName = profile?.shortName ?? "HU"
 
   const socials = [
     { href: profile?.github, label: "GitHub", Icon: GitHubIcon },
@@ -103,9 +102,13 @@ export function SiteLayout({ profile }: { profile: ProfileView | null }) {
             to="/"
             className="flex items-center gap-2 text-sm font-semibold"
           >
-            <span className="flex size-7 items-center justify-center rounded-lg bg-foreground text-xs font-bold text-background">
-              {shortName}
-            </span>
+            <img
+              src="/logo.svg"
+              alt=""
+              width={28}
+              height={28}
+              className="size-7 rounded-lg"
+            />
             <span className="hidden sm:inline">{name}</span>
           </Link>
 
@@ -135,7 +138,7 @@ export function SiteLayout({ profile }: { profile: ProfileView | null }) {
         )}
       </header>
 
-      <main className="flex-1">
+      <main className="flex min-h-0 flex-1 flex-col">
         <Outlet />
       </main>
 

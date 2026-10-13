@@ -195,3 +195,26 @@ $md$,
     true
   )
 ON CONFLICT (slug) DO NOTHING;
+
+-- Services (inserted only when the table is empty, so re-seeding is safe)
+INSERT INTO services (title, description, icon, sort_order)
+SELECT * FROM (
+  VALUES
+    ('Web Development', 'Building modern, responsive, and high-performance websites with clean architecture.', 'code', 1),
+    ('UI/UX Design', 'Designing clean, intuitive, and visually strong interfaces that users trust.', 'design', 2),
+    ('Responsive Website Design', 'Creating layouts that perform beautifully across phones, tablets, and desktops.', 'mobile', 3),
+    ('Backend Development', 'Developing secure and scalable server-side systems for modern web applications.', 'server', 4),
+    ('Database Design & Integration', 'Designing structured, reliable databases and integrating them into business workflows.', 'database', 5),
+    ('Freelance Project Development', 'Delivering custom digital solutions tailored to each client''s technical and business goals.', 'rocket', 6)
+) AS seed(title, description, icon, sort_order)
+WHERE NOT EXISTS (SELECT 1 FROM services);
+
+-- Testimonials (inserted only when the table is empty). Replace these with real ones.
+INSERT INTO testimonials (name, role, quote, avatar, sort_order)
+SELECT * FROM (
+  VALUES
+    ('Client Name', 'Founder, Company Name', 'Exceptional attention to detail. The platform was polished, fast, and exactly what the business needed.', '/client-1.svg', 1),
+    ('Client Name', 'Operations Lead, Company Name', 'Strong communication, great UX decisions, and reliable backend delivery from start to finish.', '/client-2.svg', 2),
+    ('Client Name', 'Project Manager, Company Name', 'A premium result with real business impact. Professional process and high-quality implementation.', '/client-3.svg', 3)
+) AS seed(name, role, quote, avatar, sort_order)
+WHERE NOT EXISTS (SELECT 1 FROM testimonials);

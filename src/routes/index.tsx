@@ -4,20 +4,15 @@ import {
   ArrowUp,
   Briefcase,
   Code2,
-  Database,
   Download,
   ExternalLink,
   Globe,
   Layers,
   Mail,
   MapPin,
-  PenTool,
   Phone,
-  Rocket,
   Send,
-  Server,
   Settings,
-  Smartphone,
   Sparkles,
 } from "lucide-react"
 
@@ -30,6 +25,9 @@ import {
   XIcon,
 } from "@/components/icons"
 import { getHomeData } from "@/server/api"
+import { ServiceIcon } from "@/lib/service-icons"
+import { useReveal } from "@/lib/use-reveal"
+import { projectImage } from "@/lib/project-image"
 
 export const Route = createFileRoute("/")({
   loader: () => getHomeData(),
@@ -48,39 +46,6 @@ const SPECIALTIES = [
   "Digital Transformation",
 ] as const
 
-const SERVICES = [
-  {
-    Icon: Code2,
-    title: "Web Development",
-    text: "Building modern, responsive, and high-performance websites with clean architecture.",
-  },
-  {
-    Icon: PenTool,
-    title: "UI/UX Design",
-    text: "Designing clean, intuitive, and visually strong interfaces that users trust.",
-  },
-  {
-    Icon: Smartphone,
-    title: "Responsive Website Design",
-    text: "Creating layouts that perform beautifully across phones, tablets, and desktops.",
-  },
-  {
-    Icon: Server,
-    title: "Backend Development",
-    text: "Developing secure and scalable server-side systems for modern web applications.",
-  },
-  {
-    Icon: Database,
-    title: "Database Design & Integration",
-    text: "Designing structured, reliable databases and integrating them into business workflows.",
-  },
-  {
-    Icon: Rocket,
-    title: "Freelance Project Development",
-    text: "Delivering custom digital solutions tailored to each client’s technical and business goals.",
-  },
-] as const
-
 const SKINS = [
   "#f021b2",
   "#1854b4",
@@ -96,34 +61,6 @@ const FILTERS = [
   { id: "ai", label: "AI" },
 ] as const
 
-const TESTIMONIALS = [
-  {
-    img: "/client-1.svg",
-    quote:
-      "Exceptional attention to detail. The platform was polished, fast, and exactly what the business needed.",
-    name: "Client Name",
-    role: "Founder, Company Name",
-  },
-  {
-    img: "/client-2.svg",
-    quote:
-      "Strong communication, great UX decisions, and reliable backend delivery from start to finish.",
-    name: "Client Name",
-    role: "Operations Lead, Company Name",
-  },
-  {
-    img: "/client-3.svg",
-    quote:
-      "A premium result with real business impact. Professional process and high-quality implementation.",
-    name: "Client Name",
-    role: "Project Manager, Company Name",
-  },
-] as const
-
-function projectImage(index: number) {
-  return `/project-${(index % 5) + 1}.svg`
-}
-
 function projectCategories(tags: string[]) {
   const t = tags.join(" ").toLowerCase()
   const cats: string[] = []
@@ -136,31 +73,6 @@ function projectCategories(tags: string[]) {
 }
 
 /* ------------------------------ small hooks ------------------------------ */
-
-function useReveal(deps: unknown[]) {
-  useEffect(() => {
-    const nodes = Array.from(
-      document.querySelectorAll<HTMLElement>(".home-page [data-reveal]")
-    )
-    if (!("IntersectionObserver" in window)) {
-      nodes.forEach((node) => node.classList.add("is-visible"))
-      return
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible")
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
-    )
-    nodes.forEach((node) => observer.observe(node))
-    return () => observer.disconnect()
-  }, deps)
-}
 
 function TypingText({ strings }: { strings: readonly string[] }) {
   const [text, setText] = useState(strings[0] ?? "")
@@ -210,7 +122,8 @@ function TypingText({ strings }: { strings: readonly string[] }) {
 /* -------------------------------- page ---------------------------------- */
 
 function HomePage() {
-  const { profile, projects, posts, skills, experience } = Route.useLoaderData()
+  const { profile, projects, posts, skills, experience, services, testimonials } =
+    Route.useLoaderData()
 
   const [skin, setSkin] = useState<string>(SKINS[0])
   const [switcherOpen, setSwitcherOpen] = useState(false)
@@ -274,7 +187,7 @@ function HomePage() {
 
   return (
     <div
-      className="home-page"
+      className="site-theme"
       style={{ "--skin-color": skin } as CSSProperties}
     >
       <div className="cursor-glow" ref={glowRef} aria-hidden="true" />
@@ -403,32 +316,30 @@ function HomePage() {
       ) : null}
 
       {/* --------------------------- services ------------------------- */}
-      <section
-        id="services"
-        className="section-space section-muted scroll-mt-20"
-      >
-        <div className="mx-auto w-full max-w-6xl px-4">
-          <div className="section-heading text-center" data-reveal>
-            <span className="section-kicker">Services</span>
-            <h2>Premium Solutions for Modern Businesses</h2>
+      {services.length > 0 ? (
+        <section
+          id="services"
+          className="section-space section-muted scroll-mt-20"
+        >
+          <div className="mx-auto w-full max-w-6xl px-4">
+            <div className="section-heading text-center" data-reveal>
+              <span className="section-kicker">Services</span>
+              <h2>Premium Solutions for Modern Businesses</h2>
+            </div>
+            <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {services.map((service) => (
+                <article key={service.id} className="service-card" data-reveal>
+                  <div className="service-icon">
+                    <ServiceIcon name={service.icon} className="size-6" />
+                  </div>
+                  <h3>{service.title}</h3>
+                  <p>{service.description}</p>
+                </article>
+              ))}
+            </div>
           </div>
-          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {SERVICES.map(({ Icon, title, text }) => (
-              <article
-                key={title}
-                className="service-card"
-                data-reveal
-              >
-                <div className="service-icon">
-                  <Icon className="size-6" />
-                </div>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {/* ---------------------------- skills -------------------------- */}
       {skills.length > 0 ? (
@@ -639,35 +550,35 @@ function HomePage() {
       ) : null}
 
       {/* ------------------------- testimonials ----------------------- */}
-      <section
-        id="testimonials"
-        className="section-space section-muted scroll-mt-20"
-      >
-        <div className="mx-auto w-full max-w-6xl px-4">
-          <div className="section-heading text-center" data-reveal>
-            <span className="section-kicker">Testimonials</span>
-            <h2>What Clients Say</h2>
+      {testimonials.length > 0 ? (
+        <section
+          id="testimonials"
+          className="section-space section-muted scroll-mt-20"
+        >
+          <div className="mx-auto w-full max-w-6xl px-4">
+            <div className="section-heading text-center" data-reveal>
+              <span className="section-kicker">Testimonials</span>
+              <h2>What Clients Say</h2>
+            </div>
+            <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {testimonials.map((item) => (
+                <article key={item.id} className="testimonial-card" data-reveal>
+                  {item.avatar ? (
+                    <img
+                      src={item.avatar}
+                      alt=""
+                      className="testimonial-avatar"
+                    />
+                  ) : null}
+                  <p>{`“${item.quote}”`}</p>
+                  <h4 className="mt-4">{item.name}</h4>
+                  <span>{item.role}</span>
+                </article>
+              ))}
+            </div>
           </div>
-          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {TESTIMONIALS.map((item) => (
-              <article
-                key={item.img}
-                className="testimonial-card"
-                data-reveal
-              >
-                <img
-                  src={item.img}
-                  alt=""
-                  className="testimonial-avatar"
-                />
-                <p>{`“${item.quote}”`}</p>
-                <h4 className="mt-4">{item.name}</h4>
-                <span>{item.role}</span>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {/* --------------------------- contact -------------------------- */}
       <section id="contact" className="section-space scroll-mt-20">

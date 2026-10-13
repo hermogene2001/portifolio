@@ -1,7 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { buttonVariants } from "@/components/ui/button"
-import { getProfile } from "@/server/api"
 import { Mail, MapPin, Phone, Send } from "lucide-react"
 import {
   FacebookIcon,
@@ -10,18 +7,20 @@ import {
   LinkedInIcon,
   XIcon,
 } from "@/components/icons"
+import { PageHero } from "@/components/page-hero"
+import { useReveal } from "@/lib/use-reveal"
+import { getProfile } from "@/server/api"
 
 export const Route = createFileRoute("/contact")({
   loader: () => getProfile(),
   component: ContactPage,
 })
 
-const inputClass =
-  "h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-
 function ContactPage() {
   const profile = Route.useLoaderData()
   const email = profile?.email ?? ""
+
+  useReveal()
 
   const socials = [
     { href: profile?.github, label: "GitHub", Icon: GitHubIcon },
@@ -34,129 +33,126 @@ function ContactPage() {
   )
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-12">
-      <h1 className="text-4xl font-bold">Contact</h1>
-      <p className="mt-2 max-w-2xl text-muted-foreground">
-        Have a question or want to work together? Drop me a message.
-      </p>
+    <div className="site-theme">
+      <PageHero
+        kicker="Contact"
+        title="Let's Work Together"
+        description="Have a question or a project in mind? Drop me a message and I'll get back to you."
+      />
 
-      <div className="mt-8 grid gap-4 md:grid-cols-5">
-        <Card className="h-fit gap-4 md:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-lg">Get in touch</CardTitle>
-          </CardHeader>
-          <CardContent className="gap-3 text-sm">
-            {profile?.email ? (
-              <p className="flex items-center gap-2">
-                <Mail className="size-4 shrink-0 text-muted-foreground" />
-                {profile.email}
-              </p>
-            ) : null}
-            {profile?.phone ? (
-              <p className="flex items-center gap-2">
-                <Phone className="size-4 shrink-0 text-muted-foreground" />
-                {profile.phone}
-              </p>
-            ) : null}
-            {profile?.location ? (
-              <p className="flex items-center gap-2">
-                <MapPin className="size-4 shrink-0 text-muted-foreground" />
-                {profile.location}
-              </p>
-            ) : null}
-            <div className="mt-2 flex flex-wrap gap-2">
-              {socials.map(({ href, label, Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={label}
-                  className={buttonVariants({
-                    variant: "ghost",
-                    size: "icon-sm",
-                  })}
-                >
-                  <Icon />
-                </a>
-              ))}
+      <section className="page-section">
+        <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 md:grid-cols-5">
+          <div className="premium-card h-fit p-7 md:col-span-2" data-reveal>
+            <h2 className="page-heading">Get in touch</h2>
+            <div className="contact-list text-sm">
+              {profile?.email ? (
+                <div className="contact-item">
+                  <Mail />
+                  <span>{profile.email}</span>
+                </div>
+              ) : null}
+              {profile?.phone ? (
+                <div className="contact-item">
+                  <Phone />
+                  <span>{profile.phone}</span>
+                </div>
+              ) : null}
+              {profile?.location ? (
+                <div className="contact-item">
+                  <MapPin />
+                  <span>{profile.location}</span>
+                </div>
+              ) : null}
             </div>
-          </CardContent>
-        </Card>
 
-        <Card className="md:col-span-3">
-          <form
-            className="flex flex-col gap-4"
-            onSubmit={(event) => {
-              event.preventDefault()
-              const formData = new FormData(event.currentTarget)
-              const name = String(formData.get("name") ?? "")
-              const senderEmail = String(formData.get("email") ?? "")
-              const message = String(formData.get("message") ?? "")
-              const subject = encodeURIComponent(
-                `Portfolio message from ${name}`
-              )
-              const body = encodeURIComponent(
-                `Name: ${name}\nEmail: ${senderEmail}\n\n${message}`
-              )
-
-              window.location.href = `mailto:${email}?subject=${subject}&body=${body}`
-            }}
-          >
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="name" className="text-sm font-medium">
-                  Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  required
-                  placeholder="Your name"
-                  className={inputClass}
-                />
+            {socials.length > 0 ? (
+              <div className="social-links mt-7">
+                {socials.map(({ href, label, Icon }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={label}
+                  >
+                    <Icon />
+                  </a>
+                ))}
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="email" className="text-sm font-medium">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="you@example.com"
-                  className={inputClass}
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="message" className="text-sm font-medium">
-                Message
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                required
-                rows={6}
-                placeholder="Share project details"
-                className={`${inputClass} h-auto py-2`}
-              />
-            </div>
-            <button
-              type="submit"
-              className={`${buttonVariants({ size: "default" })} w-fit`}
+            ) : null}
+          </div>
+
+          <div className="premium-card p-7 md:col-span-3" data-reveal="left">
+            <form
+              className="contact-form flex flex-col gap-4"
+              onSubmit={(event) => {
+                event.preventDefault()
+                const formData = new FormData(event.currentTarget)
+                const name = String(formData.get("name") ?? "")
+                const senderEmail = String(formData.get("email") ?? "")
+                const message = String(formData.get("message") ?? "")
+                const subject = encodeURIComponent(
+                  `Portfolio message from ${name}`
+                )
+                const body = encodeURIComponent(
+                  `Name: ${name}\nEmail: ${senderEmail}\n\n${message}`
+                )
+
+                window.location.href = `mailto:${email}?subject=${subject}&body=${body}`
+              }}
             >
-              <Send />
-              Open Email App
-            </button>
-            <p className="text-xs text-muted-foreground">
-              Your email app will open with the message ready for you to review
-              and send.
-            </p>
-          </form>
-        </Card>
-      </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="name" className="form-label">
+                    Name
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    required
+                    placeholder="Your name"
+                    className="form-control"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="form-label">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="you@example.com"
+                    className="form-control"
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="message" className="form-label">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  required
+                  rows={6}
+                  placeholder="Share project details"
+                  className="form-control"
+                />
+              </div>
+              <button type="submit" className="btn btn-brand w-fit">
+                <Send className="size-4" />
+                Open Email App
+              </button>
+              <p className="text-xs muted">
+                Your email app will open with the message ready for you to
+                review and send.
+              </p>
+            </form>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

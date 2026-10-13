@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { PageHero } from "@/components/page-hero"
 import { ProjectLoadError } from "@/components/project-load-error"
+import { useReveal } from "@/lib/use-reveal"
 import { getResume } from "@/server/api"
 
 export const Route = createFileRoute("/resume")({
@@ -13,89 +13,103 @@ export const Route = createFileRoute("/resume")({
 function ResumePage() {
   const { summary, experience, education, skills } = Route.useLoaderData()
 
+  useReveal()
+
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-12">
-      <h1 className="text-4xl font-bold">Resume</h1>
-      {summary ? (
-        <p className="mt-2 max-w-2xl text-muted-foreground">{summary}</p>
-      ) : null}
+    <div className="site-theme">
+      <PageHero
+        kicker="Resume"
+        title="Experience & Education"
+        description={summary}
+      />
 
-      <section className="mt-10">
-        <h2 className="mb-4 text-xl font-semibold">Work Experience</h2>
-        <div className="space-y-4">
-          {experience.map((job) => (
-            <Card key={job.id}>
-              <CardHeader>
-                <CardTitle className="text-lg">{job.jobTitle}</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {job.company} · {job.location} · {job.startDate}—{job.endDate}
-                </p>
-              </CardHeader>
-              <CardContent className="gap-3">
-                <p>{job.summary}</p>
-                <p className="text-sm text-muted-foreground">{job.content}</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {job.tags.map((tag) => (
-                    <Badge key={tag} variant="outline">
-                      {tag}
-                    </Badge>
+      <section className="page-section">
+        <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 lg:grid-cols-[1.5fr_1fr]">
+          <div>
+            <h2 className="page-heading" data-reveal>
+              Work Experience
+            </h2>
+            <div className="timeline">
+              {experience.map((job) => (
+                <div key={job.id} className="timeline-item" data-reveal="right">
+                  <span className="timeline-dot" aria-hidden="true" />
+                  <div className="timeline-card">
+                    <span className="timeline-meta">
+                      {job.startDate}
+                      {job.endDate ? ` — ${job.endDate}` : ""}
+                    </span>
+                    <h3 className="mt-1">{job.jobTitle}</h3>
+                    <p className="mt-1 text-sm">
+                      {[job.company, job.location].filter(Boolean).join(" · ")}
+                    </p>
+                    {job.summary ? <p className="mt-3">{job.summary}</p> : null}
+                    {job.content ? (
+                      <p className="mt-2 text-sm muted">{job.content}</p>
+                    ) : null}
+                    {job.tags.length > 0 ? (
+                      <div className="project-tags">
+                        {job.tags.map((tag) => (
+                          <span key={tag}>{tag}</span>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+              {experience.length === 0 ? (
+                <p className="muted">No experience added yet.</p>
+              ) : null}
+            </div>
+          </div>
+
+          <aside className="space-y-6">
+            <div className="premium-card p-6" data-reveal="left">
+              <h2 className="page-heading">Education</h2>
+              <div className="space-y-5">
+                {education.map((school) => (
+                  <div key={school.id}>
+                    <p className="timeline-meta">
+                      {school.startDate}
+                      {school.endDate ? ` — ${school.endDate}` : ""}
+                    </p>
+                    <h3 className="mt-1 text-lg font-bold">{school.school}</h3>
+                    {school.summary ? (
+                      <p className="mt-2 text-sm">{school.summary}</p>
+                    ) : null}
+                    {school.content ? (
+                      <p className="mt-1 text-sm muted">{school.content}</p>
+                    ) : null}
+                    {school.tags.length > 0 ? (
+                      <div className="project-tags">
+                        {school.tags.map((tag) => (
+                          <span key={tag}>{tag}</span>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+                {education.length === 0 ? (
+                  <p className="muted">No education added yet.</p>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="premium-card p-6" data-reveal="left">
+              <h2 className="page-heading">Skills</h2>
+              {skills.length > 0 ? (
+                <div className="badge-cloud">
+                  {skills.map((skill) => (
+                    <span key={skill.id} className="tech-badge">
+                      {skill.name}
+                    </span>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-          {experience.length === 0 ? (
-            <p className="text-muted-foreground">No experience added yet.</p>
-          ) : null}
+              ) : (
+                <p className="muted">No skills added yet.</p>
+              )}
+            </div>
+          </aside>
         </div>
-      </section>
-
-      <section className="mt-10">
-        <h2 className="mb-4 text-xl font-semibold">Education</h2>
-        <div className="space-y-4">
-          {education.map((school) => (
-            <Card key={school.id}>
-              <CardHeader>
-                <CardTitle className="text-lg">{school.school}</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {school.startDate}—{school.endDate}
-                </p>
-              </CardHeader>
-              <CardContent className="gap-3">
-                <p>{school.summary}</p>
-                <p className="text-sm text-muted-foreground">
-                  {school.content}
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {school.tags.map((tag) => (
-                    <Badge key={tag} variant="outline">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-          {education.length === 0 ? (
-            <p className="text-muted-foreground">No education added yet.</p>
-          ) : null}
-        </div>
-      </section>
-
-      <section className="mt-10">
-        <h2 className="mb-4 text-xl font-semibold">Skills</h2>
-        <Card>
-          <CardContent className="flex flex-wrap gap-2">
-            {skills.map((skill) => (
-              <Badge key={skill.id} variant="outline">
-                {skill.name}
-              </Badge>
-            ))}
-            {skills.length === 0 ? (
-              <p className="text-muted-foreground">No skills added yet.</p>
-            ) : null}
-          </CardContent>
-        </Card>
       </section>
     </div>
   )

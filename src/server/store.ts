@@ -7,8 +7,10 @@ import {
   experience,
   posts,
   projects,
+  services,
   siteProfile,
   skills,
+  testimonials,
   type EducationInput,
   type ExperienceInput,
   type PostInput,
@@ -16,7 +18,9 @@ import {
   type ProfileInput,
   type ProfileView,
   type ProjectInput,
+  type ServiceInput,
   type SkillInput,
+  type TestimonialInput,
 } from "@/db/schema"
 
 const profileColumns = {
@@ -109,6 +113,20 @@ export async function readSkills() {
     .orderBy(asc(skills.sortOrder), asc(skills.id))
 }
 
+export async function readServices() {
+  return getDb()
+    .select()
+    .from(services)
+    .orderBy(asc(services.sortOrder), asc(services.id))
+}
+
+export async function readTestimonials() {
+  return getDb()
+    .select()
+    .from(testimonials)
+    .orderBy(asc(testimonials.sortOrder), asc(testimonials.id))
+}
+
 export async function readPosts() {
   return getDb()
     .select(postColumns)
@@ -191,6 +209,38 @@ export async function saveSkill(input: SkillInput) {
 
 export async function deleteSkill(id: number) {
   await getDb().delete(skills).where(eq(skills.id, id))
+}
+
+export async function saveService(input: ServiceInput) {
+  const { id, ...values } = input
+  if (id) {
+    await getDb().update(services).set(values).where(eq(services.id, id))
+    return id
+  }
+  const rows = await getDb().insert(services).values(values).returning({
+    id: services.id,
+  })
+  return rows[0]?.id ?? null
+}
+
+export async function deleteService(id: number) {
+  await getDb().delete(services).where(eq(services.id, id))
+}
+
+export async function saveTestimonial(input: TestimonialInput) {
+  const { id, ...values } = input
+  if (id) {
+    await getDb().update(testimonials).set(values).where(eq(testimonials.id, id))
+    return id
+  }
+  const rows = await getDb().insert(testimonials).values(values).returning({
+    id: testimonials.id,
+  })
+  return rows[0]?.id ?? null
+}
+
+export async function deleteTestimonial(id: number) {
+  await getDb().delete(testimonials).where(eq(testimonials.id, id))
 }
 
 export async function saveProject(input: ProjectInput) {

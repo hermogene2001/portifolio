@@ -60,6 +60,23 @@ export const skills = pgTable("skills", {
   sortOrder: integer("sort_order").notNull().default(0),
 })
 
+export const services = pgTable("services", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull().default(""),
+  icon: text("icon").notNull().default("code"),
+  sortOrder: integer("sort_order").notNull().default(0),
+})
+
+export const testimonials = pgTable("testimonials", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  role: text("role").notNull().default(""),
+  quote: text("quote").notNull().default(""),
+  avatar: text("avatar").notNull().default(""),
+  sortOrder: integer("sort_order").notNull().default(0),
+})
+
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
   title: text("title").notNull().unique(),
@@ -94,6 +111,8 @@ export type Profile = typeof siteProfile.$inferSelect
 export type ExperienceItem = typeof experience.$inferSelect
 export type EducationItem = typeof education.$inferSelect
 export type Skill = typeof skills.$inferSelect
+export type Service = typeof services.$inferSelect
+export type Testimonial = typeof testimonials.$inferSelect
 export type Project = typeof projects.$inferSelect
 export type Post = typeof posts.$inferSelect
 
@@ -106,5 +125,7 @@ export type ProfileInput = Omit<Profile, "updatedAt"> & { updatedAt?: never }
 export type ExperienceInput = Omit<ExperienceItem, "id"> & { id?: number }
 export type EducationInput = Omit<EducationItem, "id"> & { id?: number }
 export type SkillInput = Omit<Skill, "id"> & { id?: number }
+export type ServiceInput = Omit<Service, "id"> & { id?: number }
+export type TestimonialInput = Omit<Testimonial, "id"> & { id?: number }
 export type ProjectInput = Omit<Project, "id" | "createdAt"> & { id?: number }
 export type PostInput = Omit<Post, "id" | "createdAt"> & { id?: number }

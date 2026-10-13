@@ -6,7 +6,9 @@ import type {
   PostInput,
   ProfileInput,
   ProjectInput,
+  ServiceInput,
   SkillInput,
+  TestimonialInput,
 } from "@/db/schema"
 import { adminConfigured, createAdminToken, verifyAdminToken } from "./auth"
 import {
@@ -14,7 +16,9 @@ import {
   deleteExperience as storeDeleteExperience,
   deletePost as storeDeletePost,
   deleteProject as storeDeleteProject,
+  deleteService as storeDeleteService,
   deleteSkill as storeDeleteSkill,
+  deleteTestimonial as storeDeleteTestimonial,
   readAllPosts,
   readAllProjects,
   readEducation,
@@ -23,13 +27,17 @@ import {
   readPosts,
   readProfile,
   readProjects,
+  readServices,
   readSkills,
+  readTestimonials,
   saveEducation as storeSaveEducation,
   saveExperience as storeSaveExperience,
   savePost as storeSavePost,
   saveProfile as storeSaveProfile,
   saveProject as storeSaveProject,
+  saveService as storeSaveService,
   saveSkill as storeSaveSkill,
+  saveTestimonial as storeSaveTestimonial,
 } from "./store"
 
 /* ---------------------------- public reads ---------------------------- */
@@ -67,14 +75,25 @@ export const getPostBySlug = createServerFn({ method: "GET" })
 
 export const getHomeData = createServerFn({ method: "GET" }).handler(
   async () => {
-    const [profile, projects, posts, skills, experience] = await Promise.all([
-      readProfile(),
-      readProjects(),
-      readPosts(),
-      readSkills(),
-      readExperience(),
-    ])
-    return { profile, projects, posts, skills, experience }
+    const [profile, projects, posts, skills, experience, services, testimonials] =
+      await Promise.all([
+        readProfile(),
+        readProjects(),
+        readPosts(),
+        readSkills(),
+        readExperience(),
+        readServices(),
+        readTestimonials(),
+      ])
+    return {
+      profile,
+      projects,
+      posts,
+      skills,
+      experience,
+      services,
+      testimonials,
+    }
   }
 )
 
@@ -104,16 +123,35 @@ export const adminGetAll = createServerFn({ method: "POST" })
   .validator((data: { token: string }) => data)
   .handler(async ({ data }) => {
     assertAdmin(data.token)
-    const [profile, experience, education, skills, projects, posts] =
-      await Promise.all([
-        readProfile(),
-        readExperience(),
-        readEducation(),
-        readSkills(),
-        readAllProjects(),
-        readAllPosts(),
-      ])
-    return { profile, experience, education, skills, projects, posts }
+    const [
+      profile,
+      experience,
+      education,
+      skills,
+      projects,
+      posts,
+      services,
+      testimonials,
+    ] = await Promise.all([
+      readProfile(),
+      readExperience(),
+      readEducation(),
+      readSkills(),
+      readAllProjects(),
+      readAllPosts(),
+      readServices(),
+      readTestimonials(),
+    ])
+    return {
+      profile,
+      experience,
+      education,
+      skills,
+      projects,
+      posts,
+      services,
+      testimonials,
+    }
   })
 
 export const adminSaveProfile = createServerFn({ method: "POST" })
@@ -165,6 +203,36 @@ export const adminDeleteSkill = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     assertAdmin(data.token)
     await storeDeleteSkill(data.id)
+    return { ok: true }
+  })
+
+export const adminSaveService = createServerFn({ method: "POST" })
+  .validator((data: { token: string; item: ServiceInput }) => data)
+  .handler(async ({ data }) => {
+    assertAdmin(data.token)
+    return storeSaveService(data.item)
+  })
+
+export const adminDeleteService = createServerFn({ method: "POST" })
+  .validator((data: { token: string; id: number }) => data)
+  .handler(async ({ data }) => {
+    assertAdmin(data.token)
+    await storeDeleteService(data.id)
+    return { ok: true }
+  })
+
+export const adminSaveTestimonial = createServerFn({ method: "POST" })
+  .validator((data: { token: string; item: TestimonialInput }) => data)
+  .handler(async ({ data }) => {
+    assertAdmin(data.token)
+    return storeSaveTestimonial(data.item)
+  })
+
+export const adminDeleteTestimonial = createServerFn({ method: "POST" })
+  .validator((data: { token: string; id: number }) => data)
+  .handler(async ({ data }) => {
+    assertAdmin(data.token)
+    await storeDeleteTestimonial(data.id)
     return { ok: true }
   })
 

@@ -9,14 +9,18 @@ import type {
   PostView,
   ProfileView,
   ProjectView,
+  Service,
   Skill,
+  Testimonial,
 } from "@/db/schema"
 import {
   adminDeleteEducation,
   adminDeleteExperience,
   adminDeletePost,
   adminDeleteProject,
+  adminDeleteService,
   adminDeleteSkill,
+  adminDeleteTestimonial,
   adminGetAll,
   adminLogin,
   adminSaveEducation,
@@ -24,8 +28,11 @@ import {
   adminSavePost,
   adminSaveProfile,
   adminSaveProject,
+  adminSaveService,
   adminSaveSkill,
+  adminSaveTestimonial,
 } from "@/server/api"
+import { SERVICE_ICON_OPTIONS } from "@/lib/service-icons"
 
 export const Route = createFileRoute("/admin")({ component: AdminPage })
 
@@ -43,6 +50,8 @@ type AdminData = {
   skills: Skill[]
   projects: ProjectView[]
   posts: PostView[]
+  services: Service[]
+  testimonials: Testimonial[]
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -166,6 +175,8 @@ function AdminPage() {
   const tabs = [
     { id: "projects", label: "Projects" },
     { id: "posts", label: "Posts" },
+    { id: "services", label: "Services" },
+    { id: "testimonials", label: "Testimonials" },
     { id: "resume", label: "Resume" },
     { id: "profile", label: "Profile" },
   ]
@@ -223,6 +234,16 @@ function AdminPage() {
         ) : null}
         {tab === "posts" ? (
           <PostsSection token={token} posts={data.posts} run={run} />
+        ) : null}
+        {tab === "services" ? (
+          <ServicesSection token={token} services={data.services} run={run} />
+        ) : null}
+        {tab === "testimonials" ? (
+          <TestimonialsSection
+            token={token}
+            testimonials={data.testimonials}
+            run={run}
+          />
         ) : null}
         {tab === "resume" ? (
           <ResumeSection
@@ -1125,6 +1146,276 @@ function EducationForm({
           <textarea
             name="content"
             defaultValue={item?.content ?? ""}
+            className={textareaClass}
+          />
+        </Field>
+      </div>
+      <div className="sm:col-span-2">
+        <button type="submit" className={`${buttonVariants()} w-fit`}>
+          {submitLabel}
+        </button>
+      </div>
+    </form>
+  )
+}
+
+/* ------------------------------ services ------------------------------ */
+
+function ServicesSection({
+  token,
+  services,
+  run,
+}: {
+  token: string
+  services: Service[]
+  run: Run
+}) {
+  return (
+    <div className="space-y-6">
+      {services.map((service) => (
+        <Card key={service.id}>
+          <CardHeader className="flex-row items-center justify-between">
+            <CardTitle className="text-base">{service.title}</CardTitle>
+            <button
+              type="button"
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+              onClick={() =>
+                run(
+                  () => adminDeleteService({ data: { token, id: service.id } }),
+                  "Service deleted"
+                )
+              }
+            >
+              Delete
+            </button>
+          </CardHeader>
+          <CardContent>
+            <ServiceForm
+              token={token}
+              service={service}
+              run={run}
+              submitLabel="Update service"
+            />
+          </CardContent>
+        </Card>
+      ))}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Add service</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ServiceForm
+            token={token}
+            service={null}
+            run={run}
+            submitLabel="Create service"
+          />
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function ServiceForm({
+  token,
+  service,
+  run,
+  submitLabel,
+}: {
+  token: string
+  service: Service | null
+  run: Run
+  submitLabel: string
+}) {
+  return (
+    <form
+      className="grid gap-4 sm:grid-cols-2"
+      onSubmit={(event) => {
+        event.preventDefault()
+        const fd = new FormData(event.currentTarget)
+        const item = {
+          id: service?.id,
+          title: String(fd.get("title") ?? ""),
+          description: String(fd.get("description") ?? ""),
+          icon: String(fd.get("icon") ?? "code"),
+          sortOrder: Number(fd.get("sortOrder") ?? 0),
+        }
+        run(() => adminSaveService({ data: { token, item } }), "Service saved")
+      }}
+    >
+      <Field label="Title">
+        <input
+          name="title"
+          defaultValue={service?.title ?? ""}
+          required
+          className={inputClass}
+        />
+      </Field>
+      <Field label="Icon">
+        <select
+          name="icon"
+          defaultValue={service?.icon ?? "code"}
+          className={inputClass}
+        >
+          {SERVICE_ICON_OPTIONS.map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field label="Sort order">
+        <input
+          name="sortOrder"
+          type="number"
+          defaultValue={service?.sortOrder ?? 0}
+          className={inputClass}
+        />
+      </Field>
+      <div className="sm:col-span-2">
+        <Field label="Description">
+          <textarea
+            name="description"
+            defaultValue={service?.description ?? ""}
+            className={textareaClass}
+          />
+        </Field>
+      </div>
+      <div className="sm:col-span-2">
+        <button type="submit" className={`${buttonVariants()} w-fit`}>
+          {submitLabel}
+        </button>
+      </div>
+    </form>
+  )
+}
+
+/* ---------------------------- testimonials ---------------------------- */
+
+function TestimonialsSection({
+  token,
+  testimonials,
+  run,
+}: {
+  token: string
+  testimonials: Testimonial[]
+  run: Run
+}) {
+  return (
+    <div className="space-y-6">
+      {testimonials.map((item) => (
+        <Card key={item.id}>
+          <CardHeader className="flex-row items-center justify-between">
+            <CardTitle className="text-base">{item.name}</CardTitle>
+            <button
+              type="button"
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+              onClick={() =>
+                run(
+                  () =>
+                    adminDeleteTestimonial({ data: { token, id: item.id } }),
+                  "Testimonial deleted"
+                )
+              }
+            >
+              Delete
+            </button>
+          </CardHeader>
+          <CardContent>
+            <TestimonialForm
+              token={token}
+              testimonial={item}
+              run={run}
+              submitLabel="Update testimonial"
+            />
+          </CardContent>
+        </Card>
+      ))}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Add testimonial</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TestimonialForm
+            token={token}
+            testimonial={null}
+            run={run}
+            submitLabel="Create testimonial"
+          />
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function TestimonialForm({
+  token,
+  testimonial,
+  run,
+  submitLabel,
+}: {
+  token: string
+  testimonial: Testimonial | null
+  run: Run
+  submitLabel: string
+}) {
+  return (
+    <form
+      className="grid gap-4 sm:grid-cols-2"
+      onSubmit={(event) => {
+        event.preventDefault()
+        const fd = new FormData(event.currentTarget)
+        const item = {
+          id: testimonial?.id,
+          name: String(fd.get("name") ?? ""),
+          role: String(fd.get("role") ?? ""),
+          quote: String(fd.get("quote") ?? ""),
+          avatar: String(fd.get("avatar") ?? ""),
+          sortOrder: Number(fd.get("sortOrder") ?? 0),
+        }
+        run(
+          () => adminSaveTestimonial({ data: { token, item } }),
+          "Testimonial saved"
+        )
+      }}
+    >
+      <Field label="Name">
+        <input
+          name="name"
+          defaultValue={testimonial?.name ?? ""}
+          required
+          className={inputClass}
+        />
+      </Field>
+      <Field label="Role / company">
+        <input
+          name="role"
+          defaultValue={testimonial?.role ?? ""}
+          className={inputClass}
+        />
+      </Field>
+      <Field label="Avatar image URL (optional)">
+        <input
+          name="avatar"
+          defaultValue={testimonial?.avatar ?? ""}
+          className={inputClass}
+        />
+      </Field>
+      <Field label="Sort order">
+        <input
+          name="sortOrder"
+          type="number"
+          defaultValue={testimonial?.sortOrder ?? 0}
+          className={inputClass}
+        />
+      </Field>
+      <div className="sm:col-span-2">
+        <Field label="Quote">
+          <textarea
+            name="quote"
+            defaultValue={testimonial?.quote ?? ""}
             className={textareaClass}
           />
         </Field>
