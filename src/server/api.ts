@@ -11,6 +11,7 @@ import type {
   TestimonialInput,
 } from "@/db/schema"
 import { adminConfigured, createAdminToken, verifyAdminToken } from "./auth"
+import { mailConfigured, sendContactEmail } from "./mail"
 import {
   deleteEducation as storeDeleteEducation,
   deleteExperience as storeDeleteExperience,
@@ -96,6 +97,56 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(
     }
   }
 )
+
+/* ---------------------------- contact form ---------------------------- */
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+export type ContactInput = {
+  name: string
+  email: string
+  message: string
+  /** Honeypot: real users leave this empty. */
+  company?: string
+}
+
+export const sendContactMessage = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    const data = (input ?? {}) as Partial<ContactInput>
+    const name = String(data.name ?? "").trim()
+    const email = String(data.email ?? "").trim()
+    const message = String(data.message ?? "").trim()
+    const company = String(data.company ?? "").trim()
+
+    // Honeypot tripped: pretend it worked so bots move on.
+    if (company) return { name, email, message, company }
+
+    if (name.length < 2 || name.length > 120) {
+      throw new Error("Please enter your name.")
+    }
+    if (email.length > 200 || !EMAIL_RE.test(email)) {
+      throw new Error("Please enter a valid email address.")
+    }
+    if (message.length < 10 || message.length > 5000) {
+      throw new Error("Please enter a message between 10 and 5000 characters.")
+    }
+
+    return { name, email, message, company }
+  })
+  .handler(async ({ data }) => {
+    if (data.company) return { ok: true }
+    if (!mailConfigured()) {
+      throw new Error(
+        "The contact form is not configured yet. Please email me directly."
+      )
+    }
+    await sendContactEmail({
+      name: data.name,
+      email: data.email,
+      message: data.message,
+    })
+    return { ok: true }
+  })
 
 /* ------------------------------- admin ------------------------------- */
 

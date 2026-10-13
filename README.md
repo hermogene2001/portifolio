@@ -39,6 +39,12 @@ database client never reaches the browser.
 2. Copy `.env.example` to `.env.local` and set:
    - `DATABASE_URL` — the pooled connection string (the Neon host contains `-pooler`).
    - `ADMIN_PASSWORD` — the password for the `/admin` editor.
+   - `GMAIL_USER` — Gmail address the contact form sends from.
+   - `GMAIL_APP_PASSWORD` — a 16-character Google **App Password** for that
+     account (create one at <https://myaccount.google.com/apppasswords>;
+     requires 2-Step Verification to be enabled).
+   - `CONTACT_TO` — where contact messages are delivered (optional; defaults to
+     `GMAIL_USER`).
 3. Create the tables and load the starter content:
 
    ```bash
@@ -62,6 +68,14 @@ There are two ways to change what the site displays:
 The public site reads only rows where `is_published` is true for projects and
 posts.
 
+### Contact form
+
+The `/contact` page posts to a server function (`sendContactMessage`) that
+delivers the message over **Gmail SMTP** with [Nodemailer](https://nodemailer.com).
+Configure `GMAIL_USER`, `GMAIL_APP_PASSWORD` and (optionally) `CONTACT_TO` as
+described above. Without those variables, the form reports that it is not
+configured instead of silently failing.
+
 ### Deploying to Vercel
 
 The app is built with the Nitro Vite plugin, which emits a Vercel Build Output API bundle (`.vercel/output`) during `vite build`.
@@ -70,6 +84,7 @@ The app is built with the Nitro Vite plugin, which emits a Vercel Build Output A
 2. Add these variables under **Project → Settings → Environment Variables** for **Production**, **Preview**, and **Development**:
    - `DATABASE_URL` — your PostgreSQL connection string (server-side only)
    - `ADMIN_PASSWORD` — the `/admin` editor password (server-side only)
+   - `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `CONTACT_TO` — contact form email (server-side only)
 
    These are **server-only** variables (no `VITE_` prefix), so they are never
    exposed to the browser and can be changed without rebuilding.
@@ -89,5 +104,8 @@ With the Vercel CLI you can set the variables and deploy without leaving the ter
 ```bash
 vercel env add DATABASE_URL production
 vercel env add ADMIN_PASSWORD production
+vercel env add GMAIL_USER production
+vercel env add GMAIL_APP_PASSWORD production
+vercel env add CONTACT_TO production
 vercel --prod
 ```

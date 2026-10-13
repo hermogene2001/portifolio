@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { useState } from "react"
 import { Mail, MapPin, Phone, Send } from "lucide-react"
 import {
   FacebookIcon,
@@ -9,16 +10,20 @@ import {
 } from "@/components/icons"
 import { PageHero } from "@/components/page-hero"
 import { useReveal } from "@/lib/use-reveal"
-import { getProfile } from "@/server/api"
+import { getProfile, sendContactMessage } from "@/server/api"
 
 export const Route = createFileRoute("/contact")({
   loader: () => getProfile(),
   component: ContactPage,
 })
 
+type Status = "idle" | "sending" | "sent" | "error"
+
 function ContactPage() {
   const profile = Route.useLoaderData()
-  const email = profile?.email ?? ""
+
+  const [status, setStatus] = useState<Status>("idle")
+  const [error, setError] = useState("")
 
   useReveal()
 
@@ -31,6 +36,37 @@ function ContactPage() {
   ].filter((social): social is typeof social & { href: string } =>
     Boolean(social.href)
   )
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const form = event.currentTarget
+    const formData = new FormData(form)
+
+    setStatus("sending")
+    setError("")
+
+    try {
+      await sendContactMessage({
+        data: {
+          name: String(formData.get("name") ?? ""),
+          email: String(formData.get("email") ?? ""),
+          message: String(formData.get("message") ?? ""),
+          company: String(formData.get("company") ?? ""),
+        },
+      })
+      form.reset()
+      setStatus("sent")
+    } catch (submitError) {
+      setStatus("error")
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Something went wrong. Please try again."
+      )
+    }
+  }
+
+  const sending = status === "sending"
 
   return (
     <div className="site-theme">
@@ -85,22 +121,23 @@ function ContactPage() {
           <div className="premium-card p-7 md:col-span-3" data-reveal="left">
             <form
               className="contact-form flex flex-col gap-4"
-              onSubmit={(event) => {
-                event.preventDefault()
-                const formData = new FormData(event.currentTarget)
-                const name = String(formData.get("name") ?? "")
-                const senderEmail = String(formData.get("email") ?? "")
-                const message = String(formData.get("message") ?? "")
-                const subject = encodeURIComponent(
-                  `Portfolio message from ${name}`
-                )
-                const body = encodeURIComponent(
-                  `Name: ${name}\nEmail: ${senderEmail}\n\n${message}`
-                )
-
-                window.location.href = `mailto:${email}?subject=${subject}&body=${body}`
-              }}
+              onSubmit={handleSubmit}
             >
+              {/* Honeypot: hidden from people, tempting to bots. */}
+              <div
+                aria-hidden="true"
+                className="absolute h-0 w-0 overflow-hidden opacity-0"
+              >
+                <label htmlFor="company">Company</label>
+                <input
+                  id="company"
+                  name="company"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="name" className="form-label">
@@ -110,6 +147,7 @@ function ContactPage() {
                     id="name"
                     name="name"
                     required
+                    maxLength={120}
                     placeholder="Your name"
                     className="form-control"
                   />
@@ -123,6 +161,7 @@ function ContactPage() {
                     name="email"
                     type="email"
                     required
+                    maxLength={200}
                     placeholder="you@example.com"
                     className="form-control"
                   />
@@ -137,17 +176,41 @@ function ContactPage() {
                   name="message"
                   required
                   rows={6}
+                  minLength={10}
+                  maxLength={5000}
                   placeholder="Share project details"
                   className="form-control"
                 />
               </div>
-              <button type="submit" className="btn btn-brand w-fit">
+
+              <button
+                type="submit"
+                className="btn btn-brand w-fit disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={sending}
+              >
                 <Send className="size-4" />
-                Open Email App
+                {sending ? "Sending…" : "Send Message"}
               </button>
-              <p className="text-xs muted">
-                Your email app will open with the message ready for you to
-                review and send.
+
+              <p
+                role="status"
+                aria-live="polite"
+                className="text-sm"
+                style={{ minHeight: "1.25rem" }}
+              >
+                {status === "sent" ? (
+                  <span style={{ color: "var(--skin-color)" }}>
+                    Thanks! Your message was sent — I&apos;ll reply soon.
+                  </span>
+                ) : null}
+                {status === "error" ? (
+                  <span style={{ color: "#d92d20" }}>{error}</span>
+                ) : null}
+                {status === "idle" ? (
+                  <span className="muted">
+                    I usually reply within a day.
+                  </span>
+                ) : null}
               </p>
             </form>
           </div>
