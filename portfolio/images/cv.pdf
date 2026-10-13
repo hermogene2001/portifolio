@@ -1,0 +1,71 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 3616 >>
+stream
+BT /F2 22 Tf 1 0 0 1 56 768 Td (HERMOGENE UKUNDAYEZU) Tj ET
+BT /F2 12 Tf 1 0 0 1 56 750 Td (Information Technology Graduate) Tj ET
+BT /F1 9.5 Tf 1 0 0 1 56 735 Td (Software Development  |  AI & Machine Learning  |  Data Systems  |  IoT  |  Digital Transformation) Tj ET
+BT /F1 9.5 Tf 1 0 0 1 56 720 Td (Kigali, Rwanda     hermogene250@gmail.com     +250 788 912 775) Tj ET
+BT /F1 9.5 Tf 1 0 0 1 56 707 Td (github.com/hermogene2001     linkedin.com/in/ukundayezu-hermogene-8957253b6) Tj ET
+0.75 0.75 0.75 rg 56 699 483 1 re f 0 0 0 rg
+0 0 0 rg
+BT /F2 11 Tf 1 0 0 1 56 682 Td (PROFESSIONAL SUMMARY) Tj ET
+0.85 0.85 0.85 rg 56 676 483 0.7 re f 0 0 0 rg
+BT /F1 9.5 Tf 1 0 0 1 56 662 Td (Information Technology graduate with practical experience in software development, AI/ML, data analytics, database management, IoT and blockchain. Currently a Field Technician at Piramie 4G, Rwanda. I combine technical execution with creative problem-solving to deliver impactful digital solutions that support digital transformation.) Tj ET
+0 0 0 rg
+BT /F2 11 Tf 1 0 0 1 56 649 Td (TECHNICAL SKILLS) Tj ET
+0.85 0.85 0.85 rg 56 643 483 0.7 re f 0 0 0 rg
+BT /F2 9.5 Tf 1 0 0 1 62 629 Td (Languages & Web: ) Tj ET BT /F1 9.5 Tf 1 0 0 1 149 629 Td (HTML, CSS, JavaScript, PHP, Python, Django, Bootstrap) Tj ET
+BT /F2 9.5 Tf 1 0 0 1 62 616 Td (Data: ) Tj ET BT /F1 9.5 Tf 1 0 0 1 94 616 Td (MySQL, database design & integration) Tj ET
+BT /F2 9.5 Tf 1 0 0 1 62 603 Td (Tools: ) Tj ET BT /F1 9.5 Tf 1 0 0 1 99 603 Td (Git, GitHub, VS Code, XAMPP) Tj ET
+BT /F2 9.5 Tf 1 0 0 1 62 590 Td (Other: ) Tj ET BT /F1 9.5 Tf 1 0 0 1 99 590 Td (UI/UX design, backend development, IoT \(NodeMCU, GPS modules\)) Tj ET
+0 0 0 rg
+BT /F2 11 Tf 1 0 0 1 56 577 Td (PROFESSIONAL EXPERIENCE) Tj ET
+0.85 0.85 0.85 rg 56 571 483 0.7 re f 0 0 0 rg
+BT /F2 9.5 Tf 1 0 0 1 62 557 Td (Field Technician — Piramie 4G, Rwanda ) Tj ET BT /F1 9.5 Tf 1 0 0 1 254 557 Td (\(Current\)) Tj ET
+BT /F1 9.5 Tf 1 0 0 1 56 544 Td (Install, maintain and support 4G network equipment and services in the field; ensure reliable customer connectivity.) Tj ET
+BT /F2 9.5 Tf 1 0 0 1 62 531 Td (Freelance Web Developer ) Tj ET BT /F1 9.5 Tf 1 0 0 1 184 531 Td (\(Self-employed\)) Tj ET
+BT /F1 9.5 Tf 1 0 0 1 56 518 Td (Designed and built responsive websites and full-stack systems for clients using PHP, Django, MySQL, Bootstrap and JavaScript.) Tj ET
+0 0 0 rg
+BT /F2 11 Tf 1 0 0 1 56 505 Td (SELECTED PROJECTS) Tj ET
+0.85 0.85 0.85 rg 56 499 483 0.7 re f 0 0 0 rg
+BT /F2 9.5 Tf 1 0 0 1 62 485 Td (Royal Advocate Information Management System ) Tj ET BT /F1 9.5 Tf 1 0 0 1 289 485 Td (— Django, MySQL, Bootstrap \(legal information & communication platform\)) Tj ET
+BT /F2 9.5 Tf 1 0 0 1 62 472 Td (Alpha Investment System ) Tj ET BT /F1 9.5 Tf 1 0 0 1 184 472 Td (— PHP, MySQL \(role-based dashboards, transactions, referrals\)) Tj ET
+BT /F2 9.5 Tf 1 0 0 1 62 459 Td (GPS Tracking System ) Tj ET BT /F1 9.5 Tf 1 0 0 1 164 459 Td (— NodeMCU, GPS, PHP/Python, MySQL \(real-time student monitoring\)) Tj ET
+BT /F2 9.5 Tf 1 0 0 1 62 446 Td (Rwanda Law AI Chatbot ) Tj ET BT /F1 9.5 Tf 1 0 0 1 174 446 Td (— Python, Django, OpenAI API \(legal Q&A on Rwandan law\)) Tj ET
+BT /F2 9.5 Tf 1 0 0 1 62 433 Td (E-Commerce Platform ) Tj ET BT /F1 9.5 Tf 1 0 0 1 164 433 Td (— Django, MySQL, Bootstrap) Tj ET
+0 0 0 rg
+BT /F2 11 Tf 1 0 0 1 56 420 Td (EDUCATION) Tj ET
+0.85 0.85 0.85 rg 56 414 483 0.7 re f 0 0 0 rg
+BT /F2 9.5 Tf 1 0 0 1 62 400 Td (Bachelor of Information Technology ) Tj ET BT /F1 9.5 Tf 1 0 0 1 239 400 Td (\(Degree focus: programming, databases, networking, IoT\)) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000003918 00000 n 
+0000003988 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+4063
+%%EOF
