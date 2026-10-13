@@ -1,17 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
-import { posts } from "@/lib/site-data"
+import { getPostBySlug } from "@/server/api"
 import { marked } from "marked"
 import { ArrowLeft, Calendar } from "lucide-react"
 
 export const Route = createFileRoute("/posts/$slug")({
+  loader: ({ params }) => getPostBySlug({ data: { slug: params.slug } }),
   component: PostPage,
 })
 
 function PostPage() {
-  const { slug } = Route.useParams()
-  const post = posts.find((p) => p.slug === slug)
+  const post = Route.useLoaderData()
 
   if (!post) {
     return (
@@ -42,7 +42,7 @@ function PostPage() {
       <h1 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
         {post.title}
       </h1>
-      <p className="text-muted-foreground mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+      <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
           <Calendar className="size-3.5" />
           {new Date(post.date).toLocaleDateString("en-US", {
@@ -61,10 +61,7 @@ function PostPage() {
         ))}
       </div>
 
-      <div
-        className="prose mt-8"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <div className="prose mt-8" dangerouslySetInnerHTML={{ __html: html }} />
     </article>
   )
 }

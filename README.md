@@ -20,33 +20,74 @@ To use the components in your app, import them as follows:
 import { Button } from "@/components/ui/button";
 ```
 
-## Projects database
+## Database (PostgreSQL + Drizzle)
 
-Project listings on the home page and Projects page are loaded from Supabase.
+Every piece of content on the site — profile, resume (experience, education,
+skills), projects and blog posts — is stored in PostgreSQL and read at request
+time through [TanStack Start server functions](https://tanstack.com/start). The
+database client never reaches the browser.
 
-1. Run [`supabase/projects.sql`](./supabase/projects.sql) in the Supabase SQL Editor. It creates the `projects` table, enables public read access for published projects, and inserts the current portfolio projects.
-2. Copy `.env.example` to `.env.local` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from your Supabase project's API settings.
-3. Restart the development server after changing environment variables.
+- Schema: [`src/db/schema.ts`](./src/db/schema.ts)
+- Migrations: [`drizzle/`](./drizzle)
+- Starter content: [`drizzle/seed.sql`](./drizzle/seed.sql)
+- Server functions: [`src/server/api.ts`](./src/server/api.ts)
 
-Add, edit, reorder, or unpublish projects in the Supabase table editor. The public site reads only rows where `is_published` is true. Keep the anon key in the client; never put a Supabase service-role key in a `VITE_` variable.
+### Setup
+
+1. Create a PostgreSQL database. This project is set up for
+   [Neon](https://neon.tech), but any PostgreSQL 14+ instance works.
+2. Copy `.env.example` to `.env.local` and set:
+   - `DATABASE_URL` — the pooled connection string (the Neon host contains `-pooler`).
+   - `ADMIN_PASSWORD` — the password for the `/admin` editor.
+3. Create the tables and load the starter content:
+
+   ```bash
+   npm run db:migrate   # apply migrations (or npm run db:push for a quick sync)
+   npm run db:seed      # load the starter content
+   ```
+
+4. Restart the dev server after changing environment variables.
+
+### Editing the content
+
+There are two ways to change what the site displays:
+
+- **In the browser:** open `/admin` and sign in with `ADMIN_PASSWORD`. From there
+  you can add, edit, reorder, publish/unpublish and delete projects, posts,
+  resume entries and the profile. Changes are written straight to PostgreSQL.
+- **In SQL:** edit [`drizzle/seed.sql`](./drizzle/seed.sql) (or run statements in
+  a database client) and re-run it. To change the schema itself, edit
+  `src/db/schema.ts`, then run `npm run db:generate` and `npm run db:migrate`.
+
+The public site reads only rows where `is_published` is true for projects and
+posts.
 
 ### Deploying to Vercel
 
 The app is built with the Nitro Vite plugin, which emits a Vercel Build Output API bundle (`.vercel/output`) during `vite build`.
 
 1. Import the repository into Vercel. The build command is `npm run build`.
-2. Add the Supabase values under **Project → Settings → Environment Variables** for **Production**, **Preview**, and **Development**:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-   These are read at build time (Vite inlines `VITE_` variables), so set them before the first deploy and redeploy after changing them.
-3. Deploy. Nitro detects the Vercel environment automatically and produces the server function plus static assets.
+2. Add these variables under **Project → Settings → Environment Variables** for **Production**, **Preview**, and **Development**:
+   - `DATABASE_URL` — your PostgreSQL connection string (server-side only)
+   - `ADMIN_PASSWORD` — the `/admin` editor password (server-side only)
+
+   These are **server-only** variables (no `VITE_` prefix), so they are never
+   exposed to the browser and can be changed without rebuilding.
+3. Run the migration and seed against the production database (from your machine):
+
+   ```bash
+   DATABASE_URL="<production connection string>" npm run db:migrate
+   DATABASE_URL="<production connection string>" npm run db:seed
+   ```
+
+4. Deploy. Nitro detects the Vercel environment automatically and produces the server function plus static assets.
 
 `vercel.json` intentionally contains no rewrites and no `outputDirectory`, because the Nitro Vercel preset owns the routing via `.vercel/output`. Do not add an SPA catch-all rewrite (`/(.*) → /index.html`); it would break server rendering.
 
 With the Vercel CLI you can set the variables and deploy without leaving the terminal:
 
 ```bash
-vercel env add VITE_SUPABASE_URL production
-vercel env add VITE_SUPABASE_ANON_KEY production
+vercel env add DATABASE_URL production
+vercel env add ADMIN_PASSWORD production
 vercel --prod
 ```

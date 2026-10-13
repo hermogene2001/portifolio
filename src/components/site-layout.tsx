@@ -9,7 +9,7 @@ import {
   LinkedInIcon,
   XIcon,
 } from "@/components/icons"
-import { profile } from "@/lib/site-data"
+import type { ProfileView } from "@/db/schema"
 
 const NAV_LINKS = [
   { to: "/", label: "Home", exact: true },
@@ -17,14 +17,6 @@ const NAV_LINKS = [
   { to: "/projects", label: "Projects", exact: false },
   { to: "/posts", label: "Blog", exact: false },
   { to: "/contact", label: "Contact", exact: false },
-] as const
-
-const SOCIALS = [
-  { href: profile.socials.github, label: "GitHub", Icon: GitHubIcon },
-  { href: profile.socials.linkedin, label: "LinkedIn", Icon: LinkedInIcon },
-  { href: profile.socials.x, label: "X", Icon: XIcon },
-  { href: profile.socials.instagram, label: "Instagram", Icon: InstagramIcon },
-  { href: profile.socials.facebook, label: "Facebook", Icon: FacebookIcon },
 ] as const
 
 function ThemeToggle() {
@@ -87,8 +79,21 @@ function NavLinks({
   )
 }
 
-export function SiteLayout() {
+export function SiteLayout({ profile }: { profile: ProfileView | null }) {
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const name = profile?.name ?? "Hermogene UKUNDAYEZU"
+  const shortName = profile?.shortName ?? "HU"
+
+  const socials = [
+    { href: profile?.github, label: "GitHub", Icon: GitHubIcon },
+    { href: profile?.linkedin, label: "LinkedIn", Icon: LinkedInIcon },
+    { href: profile?.x, label: "X", Icon: XIcon },
+    { href: profile?.instagram, label: "Instagram", Icon: InstagramIcon },
+    { href: profile?.facebook, label: "Facebook", Icon: FacebookIcon },
+  ].filter((social): social is typeof social & { href: string } =>
+    Boolean(social.href)
+  )
 
   return (
     <div className="flex min-h-svh flex-col">
@@ -99,9 +104,9 @@ export function SiteLayout() {
             className="flex items-center gap-2 text-sm font-semibold"
           >
             <span className="flex size-7 items-center justify-center rounded-lg bg-foreground text-xs font-bold text-background">
-              {profile.shortName}
+              {shortName}
             </span>
-            <span className="hidden sm:inline">{profile.name}</span>
+            <span className="hidden sm:inline">{name}</span>
           </Link>
 
           <div className="flex items-center gap-1">
@@ -137,13 +142,13 @@ export function SiteLayout() {
       <footer className="border-t border-border/60">
         <div className="mx-auto flex w-full max-w-4xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row">
           <div className="text-center sm:text-left">
-            <p className="text-sm font-semibold">{profile.name}</p>
+            <p className="text-sm font-semibold">{name}</p>
             <p className="text-xs text-muted-foreground">
               Building smart solutions with purpose and creativity.
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {SOCIALS.map(({ href, label, Icon }) => (
+            {socials.map(({ href, label, Icon }) => (
               <a
                 key={label}
                 href={href}
@@ -160,7 +165,13 @@ export function SiteLayout() {
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} {profile.name}. All rights reserved.
+            © {new Date().getFullYear()} {name}. All rights reserved. ·{" "}
+            <Link
+              to="/admin"
+              className="underline-offset-2 hover:text-foreground hover:underline"
+            >
+              Admin
+            </Link>
           </p>
         </div>
       </footer>
