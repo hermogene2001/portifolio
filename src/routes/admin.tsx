@@ -33,11 +33,14 @@ import {
   adminSaveTestimonial,
 } from "@/server/api"
 import { friendlyError } from "@/lib/errors"
+import { resizeImageFile } from "@/lib/image-resize"
 import { SERVICE_ICON_OPTIONS } from "@/lib/service-icons"
 
 export const Route = createFileRoute("/admin")({ component: AdminPage })
 
 const TOKEN_KEY = "portfolio_admin_token"
+
+const DEFAULT_HEADSHOT = "/headshot-on-white.jpg"
 
 const inputClass =
   "h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
@@ -271,6 +274,10 @@ function ProfileSection({
   profile: ProfileView | null
   run: Run
 }) {
+  const [imagePath, setImagePath] = useState(
+    profile?.imagePath ?? DEFAULT_HEADSHOT
+  )
+
   return (
     <Card>
       <CardHeader>
@@ -293,7 +300,7 @@ function ProfileSection({
               currentRole: String(fd.get("currentRole") ?? ""),
               summary: String(fd.get("summary") ?? ""),
               resumeSummary: String(fd.get("resumeSummary") ?? ""),
-              imagePath: String(fd.get("imagePath") ?? ""),
+              imagePath: imagePath.trim() || DEFAULT_HEADSHOT,
               github: String(fd.get("github") ?? "") || null,
               linkedin: String(fd.get("linkedin") ?? "") || null,
               x: String(fd.get("x") ?? "") || null,
@@ -363,13 +370,12 @@ function ProfileSection({
               className={inputClass}
             />
           </Field>
-          <Field label="Image path">
-            <input
-              name="imagePath"
-              defaultValue={profile?.imagePath ?? ""}
-              className={inputClass}
-            />
-          </Field>
+          <input type="hidden" name="imagePath" value={imagePath} />
+          <HeadshotField
+            value={imagePath}
+            onChange={setImagePath}
+            fallback={DEFAULT_HEADSHOT}
+          />
           <Field label="GitHub URL">
             <input
               name="github"
@@ -431,6 +437,89 @@ function ProfileSection({
         </form>
       </CardContent>
     </Card>
+  )
+}
+
+function HeadshotField({
+  value,
+  onChange,
+  fallback,
+}: {
+  value: string
+  onChange: (value: string) => void
+  fallback: string
+}) {
+  const [busy, setBusy] = useState(false)
+  const [localError, setLocalError] = useState<string | null>(null)
+  const isUpload = value.startsWith("data:")
+
+  async function handleFile(file: File | undefined) {
+    if (!file) return
+    setBusy(true)
+    setLocalError(null)
+    try {
+      onChange(await resizeImageFile(file))
+    } catch (err) {
+      setLocalError(friendlyError(err, "Could not process that image."))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-3 sm:col-span-2">
+      <span className="text-sm font-medium">Headshot</span>
+      <div className="flex flex-wrap items-start gap-4">
+        <img
+          src={value || fallback}
+          alt="Headshot preview"
+          className="size-28 shrink-0 rounded-xl border border-border bg-muted object-cover"
+        />
+        <div className="flex min-w-52 flex-1 flex-col gap-2">
+          <input
+            type="file"
+            accept="image/*"
+            aria-label="Upload headshot"
+            className="block w-full text-sm file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-foreground hover:file:bg-primary/90"
+            onChange={(event) => {
+              void handleFile(event.target.files?.[0])
+              event.target.value = ""
+            }}
+          />
+          <input
+            value={isUpload ? "" : value}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder={
+              isUpload
+                ? "Uploaded image in use — type a URL to replace"
+                : "Image URL or /path (blank = default)"
+            }
+            className={inputClass}
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+              onClick={() => onChange(fallback)}
+            >
+              Use default
+            </button>
+            {busy ? (
+              <span className="text-sm text-muted-foreground">Processing…</span>
+            ) : null}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Upload a photo (JPG, PNG, or WebP). It is resized to fit and saved
+            with your profile. You can also paste an image URL or path.
+          </p>
+          {localError ? (
+            <p className="text-sm text-destructive" role="alert">
+              {localError}
+            </p>
+          ) : null}
+        </div>
+      </div>
+    </div>
   )
 }
 

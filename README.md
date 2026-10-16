@@ -60,7 +60,10 @@ There are two ways to change what the site displays:
 
 - **In the browser:** open `/admin` and sign in with `ADMIN_PASSWORD`. From there
   you can add, edit, reorder, publish/unpublish and delete projects, posts,
-  resume entries and the profile. Changes are written straight to PostgreSQL.
+  services, testimonials, resume entries and the profile. The profile editor can
+  upload a new headshot photo — it is resized in the browser and saved with the
+  profile — or you can point the image at a URL/path. Changes are written
+  straight to PostgreSQL.
 - **In SQL:** edit [`drizzle/seed.sql`](./drizzle/seed.sql) (or run statements in
   a database client) and re-run it. To change the schema itself, edit
   `src/db/schema.ts`, then run `npm run db:generate` and `npm run db:migrate`.

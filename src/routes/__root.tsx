@@ -14,7 +14,13 @@ import { friendlyError } from "@/lib/errors"
 import { getProfile } from "@/server/api"
 
 export const Route = createRootRoute({
-  loader: () => getProfile(),
+  // The headshot can be a large inlined data URL. It is only rendered on the
+  // home page (via its own loader), so keep it out of the root payload that is
+  // serialised on every route.
+  loader: async () => {
+    const profile = await getProfile()
+    return profile ? { ...profile, imagePath: "" } : null
+  },
   head: ({ loaderData }) => {
     const name = loaderData?.name ?? "Hermogene UKUNDAYEZU"
     const title = `${name} | IT Portfolio`
@@ -38,7 +44,7 @@ export const Route = createRootRoute({
         },
         {
           property: "og:image",
-          content: loaderData?.imagePath ?? "/headshot-on-white.jpg",
+          content: loaderData?.imagePath || "/headshot-on-white.jpg",
         },
         { name: "twitter:card", content: "summary" },
         { name: "theme-color", content: "#ffffff" },
