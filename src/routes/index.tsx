@@ -139,30 +139,6 @@ function HomePage() {
     if (saved) setSkin(saved)
   }, [])
 
-  // Boot the jQuery inline editor for signed-in admins (client only). The token
-  // check happens first so regular visitors never download the jQuery chunk.
-  useEffect(() => {
-    let hasToken = false
-    try {
-      hasToken = !!localStorage.getItem("portfolio_admin_token")
-    } catch {
-      hasToken = false
-    }
-    if (!hasToken) return
-
-    let stop: (() => void) | undefined
-    let cancelled = false
-    import("@/lib/inline-edit")
-      .then((mod) => {
-        if (!cancelled) stop = mod.startInlineEdit()
-      })
-      .catch(() => {})
-    return () => {
-      cancelled = true
-      stop?.()
-    }
-  }, [])
-
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 420)
     onScroll()
@@ -223,29 +199,14 @@ function HomePage() {
         <div className="relative mx-auto w-full max-w-6xl px-4">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div data-reveal="right">
-              <span
-                className="section-kicker"
-                data-inline
-                data-inline-target="profile"
-                data-inline-field="role"
-              >
+              <span className="section-kicker">
                 {profile?.role ?? "Information Technology Graduate"}
               </span>
-              <h1
-                className="hero-title mt-3"
-                data-inline
-                data-inline-target="profile"
-                data-inline-field="headline"
-              >
+              <h1 className="hero-title mt-3">
                 {profile?.headline ??
                   "Building Smart Digital Solutions for Real-World Problems"}
               </h1>
-              <p
-                className="hero-text mt-4"
-                data-inline
-                data-inline-target="profile"
-                data-inline-field="summary"
-              >
+              <p className="hero-text mt-4">
                 {profile?.summary ??
                   "I develop practical software, AI/ML-driven solutions, data systems, and connected technologies that combine technical depth with business value."}
               </p>
@@ -307,13 +268,7 @@ function HomePage() {
           <div className="mx-auto w-full max-w-6xl px-4">
             <div className="section-heading text-center" data-reveal>
               <span className="section-kicker">About Me</span>
-              <h2
-                data-inline
-                data-inline-target="profile"
-                data-inline-field="aboutHeading"
-              >
-                {profile.aboutHeading}
-              </h2>
+              <h2>{profile.aboutHeading}</h2>
             </div>
             <div className="mt-8 grid items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
               <div className="about-image-wrap" data-reveal="right">
@@ -323,74 +278,26 @@ function HomePage() {
                 />
               </div>
               <div className="premium-card p-6 md:p-10" data-reveal="left">
-                <p
-                  data-inline
-                  data-inline-target="profile"
-                  data-inline-field="summary"
-                >
-                  {profile.summary}
-                </p>
-                <p
-                  className="mt-4"
-                  data-inline
-                  data-inline-target="profile"
-                  data-inline-field="resumeSummary"
-                >
-                  {profile.resumeSummary}
-                </p>
+                <p>{profile.summary}</p>
+                <p className="mt-4">{profile.resumeSummary}</p>
                 <div className="info-grid mt-6">
                   <div>
-                    <strong>Full Name:</strong>{" "}
-                    <span
-                      data-inline
-                      data-inline-target="profile"
-                      data-inline-field="name"
-                    >
-                      {profile.name}
-                    </span>
+                    <strong>Full Name:</strong> {profile.name}
                   </div>
                   <div>
-                    <strong>Location:</strong>{" "}
-                    <span
-                      data-inline
-                      data-inline-target="profile"
-                      data-inline-field="location"
-                    >
-                      {profile.location}
-                    </span>
+                    <strong>Location:</strong> {profile.location}
                   </div>
                   <div>
-                    <strong>Current Role:</strong>{" "}
-                    <span
-                      data-inline
-                      data-inline-target="profile"
-                      data-inline-field="currentRole"
-                    >
-                      {profile.currentRole}
-                    </span>
+                    <strong>Current Role:</strong> {profile.currentRole}
                   </div>
                   <div>
                     <strong>Area of Focus:</strong> IT, AI, Data &amp; IoT
                   </div>
                   <div>
-                    <strong>Email:</strong>{" "}
-                    <span
-                      data-inline
-                      data-inline-target="profile"
-                      data-inline-field="email"
-                    >
-                      {profile.email}
-                    </span>
+                    <strong>Email:</strong> {profile.email}
                   </div>
                   <div>
-                    <strong>Phone:</strong>{" "}
-                    <span
-                      data-inline
-                      data-inline-target="profile"
-                      data-inline-field="phone"
-                    >
-                      {profile.phone}
-                    </span>
+                    <strong>Phone:</strong> {profile.phone}
                   </div>
                 </div>
                 <div className="mt-6 flex flex-wrap gap-3">
@@ -429,22 +336,8 @@ function HomePage() {
                   <div className="service-icon">
                     <ServiceIcon name={service.icon} className="size-6" />
                   </div>
-                  <h3
-                    data-inline
-                    data-inline-target="service"
-                    data-inline-id={service.id}
-                    data-inline-field="title"
-                  >
-                    {service.title}
-                  </h3>
-                  <p
-                    data-inline
-                    data-inline-target="service"
-                    data-inline-id={service.id}
-                    data-inline-field="description"
-                  >
-                    {service.description}
-                  </p>
+                  <h3>{service.title}</h3>
+                  <p>{service.description}</p>
                 </article>
               ))}
             </div>
@@ -533,23 +426,8 @@ function HomePage() {
                   />
                 </div>
                 <div className="project-content">
-                  <h3
-                    data-inline
-                    data-inline-target="project"
-                    data-inline-id={project.id}
-                    data-inline-field="title"
-                  >
-                    {project.title}
-                  </h3>
-                  <p
-                    className="mt-2"
-                    data-inline
-                    data-inline-target="project"
-                    data-inline-id={project.id}
-                    data-inline-field="description"
-                  >
-                    {project.description}
-                  </p>
+                  <h3>{project.title}</h3>
+                  <p className="mt-2">{project.description}</p>
                   <div className="project-tags">
                     {project.tags.map((tag) => (
                       <span key={tag}>{tag}</span>
@@ -696,35 +574,9 @@ function HomePage() {
                       className="testimonial-avatar"
                     />
                   ) : null}
-                  <p>
-                    {"“"}
-                    <span
-                      data-inline
-                      data-inline-target="testimonial"
-                      data-inline-id={item.id}
-                      data-inline-field="quote"
-                    >
-                      {item.quote}
-                    </span>
-                    {"”"}
-                  </p>
-                  <h4
-                    className="mt-4"
-                    data-inline
-                    data-inline-target="testimonial"
-                    data-inline-id={item.id}
-                    data-inline-field="name"
-                  >
-                    {item.name}
-                  </h4>
-                  <span
-                    data-inline
-                    data-inline-target="testimonial"
-                    data-inline-id={item.id}
-                    data-inline-field="role"
-                  >
-                    {item.role}
-                  </span>
+                  <p>{`“${item.quote}”`}</p>
+                  <h4 className="mt-4">{item.name}</h4>
+                  <span>{item.role}</span>
                 </article>
               ))}
             </div>

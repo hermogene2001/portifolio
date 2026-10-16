@@ -22,7 +22,6 @@ import {
   type SkillInput,
   type TestimonialInput,
 } from "@/db/schema"
-import { isInlineField, type InlineTarget } from "@/lib/inline"
 
 const profileColumns = {
   id: siteProfile.id,
@@ -277,56 +276,4 @@ export async function savePost(input: PostInput) {
 
 export async function deletePost(id: number) {
   await getDb().delete(posts).where(eq(posts.id, id))
-}
-
-/* ---------------------------- inline edits ---------------------------- */
-
-/**
- * Update a single editable field straight from the on-page editor.
- * Only fields listed in `INLINE_FIELDS` are accepted, so the endpoint can
- * never be used to patch arbitrary columns.
- */
-export async function applyInlineUpdate(input: {
-  target: InlineTarget
-  field: string
-  value: string
-  id?: number
-}) {
-  const { target, field, value, id } = input
-  if (!isInlineField(target, field)) {
-    throw new Error(`Field "${target}.${field}" is not editable inline.`)
-  }
-
-  if (target === "profile") {
-    const patch = { [field]: value } as unknown as Partial<
-      typeof siteProfile.$inferInsert
-    >
-    await getDb().update(siteProfile).set(patch).where(eq(siteProfile.id, 1))
-    return
-  }
-
-  if (typeof id !== "number" || !Number.isInteger(id)) {
-    throw new Error("A numeric id is required for this field.")
-  }
-
-  if (target === "service") {
-    const patch = { [field]: value } as unknown as Partial<
-      typeof services.$inferInsert
-    >
-    await getDb().update(services).set(patch).where(eq(services.id, id))
-    return
-  }
-
-  if (target === "testimonial") {
-    const patch = { [field]: value } as unknown as Partial<
-      typeof testimonials.$inferInsert
-    >
-    await getDb().update(testimonials).set(patch).where(eq(testimonials.id, id))
-    return
-  }
-
-  const patch = { [field]: value } as unknown as Partial<
-    typeof projects.$inferInsert
-  >
-  await getDb().update(projects).set(patch).where(eq(projects.id, id))
 }
