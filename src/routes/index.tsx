@@ -271,7 +271,10 @@ function HomePage() {
             </div>
             <div className="mt-8 grid items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
               <div className="about-image-wrap" data-reveal="right">
-                <img src="/about.jpg" alt={`About ${name}`} />
+                <img
+                  src={profile.aboutImagePath || "/about.jpg"}
+                  alt={`About ${name}`}
+                />
               </div>
               <div className="premium-card p-6 md:p-10" data-reveal="left">
                 <p>{profile.summary}</p>

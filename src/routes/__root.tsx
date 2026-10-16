@@ -19,7 +19,7 @@ export const Route = createRootRoute({
   // serialised on every route.
   loader: async () => {
     const profile = await getProfile()
-    return profile ? { ...profile, imagePath: "" } : null
+    return profile ? { ...profile, imagePath: "", aboutImagePath: "" } : null
   },
   head: ({ loaderData }) => {
     const name = loaderData?.name ?? "Hermogene UKUNDAYEZU"

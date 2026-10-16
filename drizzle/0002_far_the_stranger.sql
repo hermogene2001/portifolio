@@ -1,0 +1,1 @@
+ALTER TABLE "site_profile" ADD COLUMN "about_image_path" text DEFAULT '/about.jpg' NOT NULL;

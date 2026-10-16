@@ -35,6 +35,7 @@ const profileColumns = {
   summary: siteProfile.summary,
   resumeSummary: siteProfile.resumeSummary,
   imagePath: siteProfile.imagePath,
+  aboutImagePath: siteProfile.aboutImagePath,
   github: siteProfile.github,
   linkedin: siteProfile.linkedin,
   x: siteProfile.x,

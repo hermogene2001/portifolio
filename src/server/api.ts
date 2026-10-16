@@ -207,8 +207,11 @@ export const adminGetAll = createServerFn({ method: "POST" })
 
 export const adminSaveProfile = createServerFn({ method: "POST" })
   .validator((data: { token: string; profile: ProfileInput }) => {
-    // Safety net: uploaded headshots arrive here as data URLs.
-    if (data.profile.imagePath.length > 3_000_000) {
+    // Safety net: uploaded images arrive here as data URLs.
+    if (
+      data.profile.imagePath.length > 3_000_000 ||
+      data.profile.aboutImagePath.length > 3_000_000
+    ) {
       throw new Error("That image is too large. Please choose a smaller photo.")
     }
     return data

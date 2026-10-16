@@ -41,6 +41,7 @@ export const Route = createFileRoute("/admin")({ component: AdminPage })
 const TOKEN_KEY = "portfolio_admin_token"
 
 const DEFAULT_HEADSHOT = "/headshot-on-white.jpg"
+const DEFAULT_ABOUT = "/about.jpg"
 
 const inputClass =
   "h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
@@ -277,6 +278,9 @@ function ProfileSection({
   const [imagePath, setImagePath] = useState(
     profile?.imagePath ?? DEFAULT_HEADSHOT
   )
+  const [aboutImagePath, setAboutImagePath] = useState(
+    profile?.aboutImagePath ?? DEFAULT_ABOUT
+  )
 
   return (
     <Card>
@@ -301,6 +305,7 @@ function ProfileSection({
               summary: String(fd.get("summary") ?? ""),
               resumeSummary: String(fd.get("resumeSummary") ?? ""),
               imagePath: imagePath.trim() || DEFAULT_HEADSHOT,
+              aboutImagePath: aboutImagePath.trim() || DEFAULT_ABOUT,
               github: String(fd.get("github") ?? "") || null,
               linkedin: String(fd.get("linkedin") ?? "") || null,
               x: String(fd.get("x") ?? "") || null,
@@ -371,10 +376,24 @@ function ProfileSection({
             />
           </Field>
           <input type="hidden" name="imagePath" value={imagePath} />
-          <HeadshotField
+          <input
+            type="hidden"
+            name="aboutImagePath"
+            value={aboutImagePath}
+          />
+          <ImageField
+            label="Headshot"
             value={imagePath}
             onChange={setImagePath}
             fallback={DEFAULT_HEADSHOT}
+            hint="Shown in the home hero. Upload a photo (JPG, PNG, or WebP) — it is resized and saved with your profile — or paste an image URL/path."
+          />
+          <ImageField
+            label="About image"
+            value={aboutImagePath}
+            onChange={setAboutImagePath}
+            fallback={DEFAULT_ABOUT}
+            hint="Shown in the About Me section. Leave on default to use /about.jpg."
           />
           <Field label="GitHub URL">
             <input
@@ -440,14 +459,18 @@ function ProfileSection({
   )
 }
 
-function HeadshotField({
+function ImageField({
+  label,
   value,
   onChange,
   fallback,
+  hint,
 }: {
+  label: string
   value: string
   onChange: (value: string) => void
   fallback: string
+  hint?: string
 }) {
   const [busy, setBusy] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
@@ -468,18 +491,18 @@ function HeadshotField({
 
   return (
     <div className="flex flex-col gap-3 sm:col-span-2">
-      <span className="text-sm font-medium">Headshot</span>
+      <span className="text-sm font-medium">{label}</span>
       <div className="flex flex-wrap items-start gap-4">
         <img
           src={value || fallback}
-          alt="Headshot preview"
+          alt={`${label} preview`}
           className="size-28 shrink-0 rounded-xl border border-border bg-muted object-cover"
         />
         <div className="flex min-w-52 flex-1 flex-col gap-2">
           <input
             type="file"
             accept="image/*"
-            aria-label="Upload headshot"
+            aria-label={`Upload ${label.toLowerCase()}`}
             className="block w-full text-sm file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-foreground hover:file:bg-primary/90"
             onChange={(event) => {
               void handleFile(event.target.files?.[0])
@@ -509,8 +532,8 @@ function HeadshotField({
             ) : null}
           </div>
           <p className="text-xs text-muted-foreground">
-            Upload a photo (JPG, PNG, or WebP). It is resized to fit and saved
-            with your profile. You can also paste an image URL or path.
+            {hint ??
+              "Upload a photo (JPG, PNG, or WebP). It is resized to fit and saved with your profile. You can also paste an image URL or path."}
           </p>
           {localError ? (
             <p className="text-sm text-destructive" role="alert">
