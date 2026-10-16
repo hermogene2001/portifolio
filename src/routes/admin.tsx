@@ -306,6 +306,8 @@ function ProfileSection({
               resumeSummary: String(fd.get("resumeSummary") ?? ""),
               imagePath: imagePath.trim() || DEFAULT_HEADSHOT,
               aboutImagePath: aboutImagePath.trim() || DEFAULT_ABOUT,
+              headline: String(fd.get("headline") ?? ""),
+              aboutHeading: String(fd.get("aboutHeading") ?? ""),
               github: String(fd.get("github") ?? "") || null,
               linkedin: String(fd.get("linkedin") ?? "") || null,
               x: String(fd.get("x") ?? "") || null,
@@ -375,6 +377,24 @@ function ProfileSection({
               className={inputClass}
             />
           </Field>
+          <div className="sm:col-span-2">
+            <Field label="Hero headline">
+              <input
+                name="headline"
+                defaultValue={profile?.headline ?? ""}
+                className={inputClass}
+              />
+            </Field>
+          </div>
+          <div className="sm:col-span-2">
+            <Field label="About heading">
+              <input
+                name="aboutHeading"
+                defaultValue={profile?.aboutHeading ?? ""}
+                className={inputClass}
+              />
+            </Field>
+          </div>
           <input type="hidden" name="imagePath" value={imagePath} />
           <input
             type="hidden"

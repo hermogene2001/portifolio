@@ -11,8 +11,10 @@ import type {
   TestimonialInput,
 } from "@/db/schema"
 import { adminConfigured, createAdminToken, verifyAdminToken } from "./auth"
+import { isInlineField, type InlineTarget } from "@/lib/inline"
 import { mailConfigured, sendContactEmail } from "./mail"
 import {
+  applyInlineUpdate as storeApplyInlineUpdate,
   deleteEducation as storeDeleteEducation,
   deleteExperience as storeDeleteExperience,
   deletePost as storeDeletePost,
@@ -324,4 +326,75 @@ export const adminDeletePost = createServerFn({ method: "POST" })
     assertAdmin(data.token)
     await storeDeletePost(data.id)
     return { ok: true }
+  })
+
+/* --------------------------- inline editing --------------------------- */
+
+function jsonResponse(status: number, body: { ok: boolean; error?: string }) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "content-type": "application/json" },
+  })
+}
+
+/**
+ * Save one field edited straight on the public page.
+ *
+ * The on-page jQuery editor posts an ordinary form-encoded request (jQuery's
+ * default `$.ajax({ data })`) to `inlineUpdate.url`. Accepting `FormData` skips
+ * TanStack's Seroval payload format entirely (see the form-data branch of
+ * `handleServerAction`). Returning a raw `Response` is passed straight through —
+ * Start sets `x-tss-raw` and returns it as-is — so the browser gets real status
+ * codes and plain JSON to read in `.done()` / `.fail()`.
+ */
+export const inlineUpdate = createServerFn({ method: "POST" })
+  .validator((data: FormData) => data)
+  .handler(async ({ data }) => {
+    if (!adminConfigured()) {
+      return jsonResponse(500, {
+        ok: false,
+        error: "Admin editing is not configured.",
+      })
+    }
+    if (!verifyAdminToken(data.get("token"))) {
+      return jsonResponse(401, {
+        ok: false,
+        error: "Not authorized. Sign in at /admin again.",
+      })
+    }
+
+    const target = String(data.get("target") ?? "")
+    const field = String(data.get("field") ?? "")
+    const value = String(data.get("value") ?? "")
+    const idRaw = data.get("id")
+    const id = idRaw ? Number(idRaw) : undefined
+
+    if (!target || !field || data.get("value") === null) {
+      return jsonResponse(400, {
+        ok: false,
+        error: "target, field and value are required.",
+      })
+    }
+    if (!isInlineField(target, field)) {
+      return jsonResponse(400, {
+        ok: false,
+        error: `Field "${target}.${field}" is not editable.`,
+      })
+    }
+
+    try {
+      await storeApplyInlineUpdate({
+        target: target as InlineTarget,
+        field,
+        value,
+        id,
+      })
+    } catch (error) {
+      return jsonResponse(400, {
+        ok: false,
+        error: error instanceof Error ? error.message : "Update failed.",
+      })
+    }
+
+    return jsonResponse(200, { ok: true })
   })

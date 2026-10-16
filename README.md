@@ -64,9 +64,29 @@ There are two ways to change what the site displays:
   upload the hero headshot and the About Me image — each is resized in the
   browser and saved with the profile — or you can point either one at a
   URL/path. Changes are written straight to PostgreSQL.
+- **On the live page (inline editing):** once you have signed in at `/admin`
+  (which stores the admin token), the public home page becomes click-to-edit.
+  Hovering any editable text shows a highlight; click it, type the new value, and
+  press <kbd>Enter</kbd> (or <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>Enter</kbd> for
+  long paragraphs) to save — <kbd>Esc</kbd> cancels. A running "Inline edit on"
+  badge is shown in the corner. The hero headline/role and summary, the About
+  heading and paragraphs, the profile details, service and project
+  titles/descriptions, and testimonials are all editable. Saves go straight to
+  PostgreSQL through the `inlineUpdate` server function, so the page updates in
+  place with no reload. Inline editing is only active when the admin token is
+  present; visitors see the normal page.
 - **In SQL:** edit [`drizzle/seed.sql`](./drizzle/seed.sql) (or run statements in
   a database client) and re-run it. To change the schema itself, edit
   `src/db/schema.ts`, then run `npm run db:generate` and `npm run db:migrate`.
+
+Inline editing is powered by [jQuery](https://jquery.com) in
+[`src/lib/inline-edit.ts`](./src/lib/inline-edit.ts). The allow-list of editable
+`target.field` pairs is shared with the endpoint via
+[`src/lib/inline.ts`](./src/lib/inline.ts), so the client and server can never
+drift apart. Adding an editable field means adding it to that allow-list and
+tagging the element with `data-inline data-inline-target="…"
+data-inline-field="…"` (plus `data-inline-id="…"` for services, projects and
+testimonials).
 
 The public site reads only rows where `is_published` is true for projects and
 posts.

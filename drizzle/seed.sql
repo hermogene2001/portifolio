@@ -5,7 +5,7 @@
 -- Profile (single row, id = 1)
 INSERT INTO site_profile (
   id, name, short_name, role, location, email, phone, "current_role",
-  summary, resume_summary, image_path, about_image_path, github, linkedin, x, instagram, facebook
+  summary, resume_summary, image_path, about_image_path, headline, about_heading, github, linkedin, x, instagram, facebook
 ) VALUES (
   1,
   'Hermogene UKUNDAYEZU',
@@ -19,6 +19,8 @@ INSERT INTO site_profile (
   'IT graduate and Field Technician focused on software engineering, AI/ML, data systems and IoT. Experienced in delivering full-stack platforms with PHP, Django, MySQL, Bootstrap and JavaScript, from database design to client-ready delivery.',
   '/headshot-on-white.jpg',
   '/about.jpg',
+  'Building Smart Digital Solutions for Real-World Problems',
+  'IT Graduate with a Passion for Innovation',
   'https://github.com/hermogene2001',
   'https://www.linkedin.com/in/ukundayezu-hermogene-8957253b6',
   'https://x.com/hermess2001',
