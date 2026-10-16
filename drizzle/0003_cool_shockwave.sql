@@ -1,0 +1,2 @@
+ALTER TABLE "site_profile" ADD COLUMN "headline" text DEFAULT 'Building Smart Digital Solutions for Real-World Problems' NOT NULL;--> statement-breakpoint
+ALTER TABLE "site_profile" ADD COLUMN "about_heading" text DEFAULT 'IT Graduate with a Passion for Innovation' NOT NULL;

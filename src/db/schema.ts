@@ -21,6 +21,12 @@ export const siteProfile = pgTable("site_profile", {
   resumeSummary: text("resume_summary").notNull(),
   imagePath: text("image_path").notNull().default("/headshot-on-white.jpg"),
   aboutImagePath: text("about_image_path").notNull().default("/about.jpg"),
+  headline: text("headline")
+    .notNull()
+    .default("Building Smart Digital Solutions for Real-World Problems"),
+  aboutHeading: text("about_heading")
+    .notNull()
+    .default("IT Graduate with a Passion for Innovation"),
   github: text("github"),
   linkedin: text("linkedin"),
   x: text("x"),
